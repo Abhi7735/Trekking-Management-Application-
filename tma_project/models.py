@@ -35,3 +35,11 @@ class Trek(db.model):
     Trek_status = db.column(db.string(100), nullable = False,default = 'Pending')
     Trek_location = db.column(db.string(200), nullable = False)
 
+class Booking(db.model):
+    __tablename__ = 'Bookings'
+    B_id = db.column(db.integers, primary_key = True)
+    User_id = db.column(db.integers, db.ForeignKey('Users.U_id'), nullable = False)
+    Trek_id = db.column(db.integers, db.ForeignKey('Treks.Tr_id'), nullable = False)
+    B_status = db.column(db.string(100), nullable = False, default = 'Pending')
+    B_date = db.column(db.datetime, default = datetime.utcnow)
+    payment_status = db.column(db.string(100), nullable = False, default = 'Pending') 
