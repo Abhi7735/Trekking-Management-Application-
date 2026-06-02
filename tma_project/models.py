@@ -10,7 +10,7 @@ class User(db.model, UserMixin):
     U_name = db.Column(db.String(100),nullable = False,Unique = True)
     U_email = db.Column(db.String(200),nullable = False, Unique = True)
     U_password = db.Column(db.String(300),nullable = False, Unique= True)
-    U_role = db.Column(db.String(50),nullabe = False)
+    U_role = db.Column(db.String(50),nullable = False)
     U_created_at = db.Column(db.DateTime , default= datetime.utcnow)
     U_ph_number = db.Column(db.String(40), nullable = False)
 
@@ -20,7 +20,7 @@ class User(db.model, UserMixin):
 class Trek_staff(db.model):
     __tablename__ = 'Trek_staff'
     s_id = db.Column(db.Integer, primary_key = True)
-    s_name = db.Column(db.String(150), nullalbe = False)
+    s_name = db.Column(db.String(150), nullable = False)
     s_email_id = db.Column(db.String(250), nullable = False, Unique = True)
     staff_ph_number = db.Column(db.String(40),nullable = False)
     s_created_at = db.Column(db.DateTime, default = datetime.utcnow)
