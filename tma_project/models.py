@@ -13,6 +13,8 @@ class User(db.model, UserMixin):
     U_role = db.Column(db.String(50),nullable = False)
     U_created_at = db.Column(db.DateTime , default= datetime.utcnow)
     U_ph_number = db.Column(db.String(40), nullable = False)
+    U_gender = db.Column(db.String(10), nullable = False)
+    U_address = db.Column(db.String(200), nullable = False)
 
     # relationships : User to Booking is one to many
     bookings = db.relationship('Booking', backref='User', lazy=True)
