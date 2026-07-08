@@ -1,57 +1,47 @@
-from flask_sqlalchemy import SQLAlchemy # type: ignore
-from flask_login import UserMixin # type: ignore
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 db = SQLAlchemy() # ORM translator between python world and database world
 
-class User(db.model, UserMixin):
-    __tablename__ = 'Users'
-    U_id = db.Column(db.Integer, primary_key = True)
-    U_name = db.Column(db.String(100),nullable = False,Unique = True)
-    U_email = db.Column(db.String(200),nullable = False, Unique = True)
-    U_password = db.Column(db.String(300),nullable = False, Unique= True)
-    U_role = db.Column(db.String(50),nullable = False)
-    U_created_at = db.Column(db.DateTime , default= datetime.utcnow)
-    U_ph_number = db.Column(db.String(40), nullable = False)
-    U_gender = db.Column(db.String(10), nullable = False)
-    U_address = db.Column(db.String(200), nullable = False)
 
-    # relationships : User to Booking is one to many
-    bookings = db.relationship('Booking', backref='User', lazy=True)
 
-class Trek_staff(db.model):
-    __tablename__ = 'Trek_staff'
-    s_id = db.Column(db.Integer, primary_key = True)
-    s_name = db.Column(db.String(150), nullable = False)
-    s_email_id = db.Column(db.String(250), nullable = False, Unique = True)
-    staff_ph_number = db.Column(db.String(40),nullable = False)
-    s_created_at = db.Column(db.DateTime, default = datetime.utcnow)
+class Account(db.Model):
+    __tablename__ = 'accounts'
+    aid = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    passkey = db.Column(db.String(255), nullable=False)
+    role_level = db.Column(db.String(20), default='customer') # customer, coordinator, director
+    authorized = db.Column(db.Boolean, default=True)
+    is_active = db.Column(db.Boolean, default=True)
 
-# relationships : Trek_staff to Trek is one to many
-    Treks = db.relationship('Trek', backref = 'Trek_staff', lazy = True)
+    def set_pass(self, plain):
+        self.passkey = generate_password_hash(plain, method='pbkdf2:sha256', salt_length=12)
+    
+    def check_pass(self, plain):
+        return check_password_hash(self.passkey, plain)
 
-class Trek(db.model):
-    __tablename__ = 'Treks'
-    Tr_id = db.Column(db.Integer, primary_key = True)
-    Tr_name = db.Column(db.String(100), nullable= False , unique = True )
-    Tr_difficulty = db.Column(db.String(70),nullable = False)
-    Tr_duration = db.Column(db.String(100), nullable = False)
-    Avail_slots = db.Column(db.Integer, nullable = False)
-    Assigned_staff_id = db.Column(db.Integer, db.ForeignKey('Trek_staff.s_id'), nullable = False)
-    Tr_status = db.Column(db.String(100), nullable = False,default = 'Pending')
-    Tr_location = db.Column(db.String(200), nullable = False)
-    Tr_price = db.Column(db.Float, nullable = False)
-    Tr_start_date = db.Column(db.DateTime, nullable = False)
-    Tr_end_date = db.Column(db.DateTime, nullable = False)
+class Journey(db.Model):
+    __tablename__ = 'journeys'
+    jid = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    location = db.Column(db.String(100), nullable=False)
+    difficulty = db.Column(db.String(50), nullable=False)
+    total_slots = db.Column(db.Integer, nullable=False)
+    available_slots = db.Column(db.Integer, nullable=False)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
+    status = db.Column(db.String(50), default='Scheduled') # Scheduled, Active, Completed
+    assigned_to = db.Column(db.Integer, db.ForeignKey('accounts.aid'), nullable=True)
+    
+    coordinator = db.relationship('Account', backref='journeys_managing', foreign_keys=[assigned_to])
 
-# relationships : Trek to Booking is one to many
-    Bookings = db.relationship('Booking', backref = 'Trek', lazy = True)
+class Ticket(db.Model):
+    __tablename__ = 'tickets'
+    tid = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('accounts.aid', ondelete='CASCADE'))
+    journey_id = db.Column(db.Integer, db.ForeignKey('journeys.jid', ondelete='CASCADE'))
+    booked_on = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    customer = db.relationship('Account', backref=db.backref('tickets', cascade='all, delete-orphan'), foreign_keys=[customer_id])
+    journey = db.relationship('Journey', backref=db.backref('tickets', cascade='all, delete-orphan'))
 
-class Booking(db.model):
-    __tablename__ = 'Bookings'
-    B_id = db.Column(db.Integer, primary_key = True)
-    User_id = db.Column(db.Integer, db.ForeignKey('Users.U_id'), nullable = False)
-    Trek_id = db.column(db.integers, db.ForeignKey('Treks.Tr_id'), nullable = False)
-    B_status = db.column(db.string(100), nullable = False, default = 'Pending')
-    B_date = db.column(db.datetime, default = datetime.utcnow)
-    payment_status = db.column(db.string(100), nullable = False, default = 'Pending') 
