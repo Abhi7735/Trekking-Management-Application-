@@ -16,7 +16,7 @@ def init_app():# define a function to initialize the Flask application and confi
     from controllers.customer_ctrl import customer_routes
     from controllers.coordinator_ctrl import coordinator_routes
     from controllers.director_ctrl import director_routes
-
+#doubt for below code1:1.
     app.register_blueprint(auth_routes)
     app.register_blueprint(customer_routes,url_prefix='/customer')
     app.register_blueprint(coordinator_routes,url_prefix='/coordinator')
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         # Seed default data
         if not Account.query.filter_by(username='director').first():
             a1 = Account(username='director', role_level='director')
-            a1.set_pass('director')
+            a1.set_pass('director')#A custom method to securely save the password instead of storing it in plain text
             
             a2 = Account(username='gamma_customer', role_level='customer')
             a2.set_pass('password123')
