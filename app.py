@@ -16,7 +16,7 @@ def init_app():# define a function to initialize the Flask application and confi
     from controllers.customer_ctrl import customer_routes
     from controllers.coordinator_ctrl import coordinator_routes
     from controllers.director_ctrl import director_routes
-#doubt for below code1:1.
+#doubt for below code1:1.jdj
     app.register_blueprint(auth_routes)
     app.register_blueprint(customer_routes,url_prefix='/customer')
     app.register_blueprint(coordinator_routes,url_prefix='/coordinator')
