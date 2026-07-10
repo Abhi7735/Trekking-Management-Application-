@@ -13,7 +13,7 @@ def dashboard():
 @coordinator_routes.route('/update_journey/<int:jid>', methods=['POST'])
 def update_journey(jid):
     if session.get('role') != 'coordinator':
-        return redirect(url_for('auth.login'))# jfjke
+        return redirect(url_for('auth.login'))
     
     j = journey.query.get(jid)
     if j and j.assigned_to == session['aid']:
