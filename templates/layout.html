@@ -1,0 +1,18 @@
+<!DOCTYPE html> # tells the webbrowser that this is an HTML5 document
+<html>
+<head>
+    <title>Dashboard - Gamma</title>
+    <link rel="stylesheet" href="/static/theme.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>GAMMA OS</h2>
+        {% block nav %}{% endblock %}
+        <div style="flex:1;"></div>
+        <a href="/logout">Logout</a>
+    </div>
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

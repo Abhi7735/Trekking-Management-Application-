@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block nav %}
+<li class="nav-item"><a class="nav-link active" href="/director/dashboard">Director Panel</a></li>
+{% endblock %}
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Director Panel</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card bg-light">
+            <div class="card-header bg-dark text-white">Create Journey</div>
+            <div class="card-body">
+                <form method="POST" action="/director/add_journey">
+                    <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Title" required></div>
+                    <div class="mb-2"><input type="text" name="location" class="form-control" placeholder="Location" required></div>
+                    <div class="mb-2"><input type="text" name="difficulty" class="form-control" placeholder="Difficulty" required></div>
+                    <div class="mb-2"><input type="number" name="slots" class="form-control" placeholder="Slots" required></div>
+                    <div class="mb-2"><label>Start Date</label><input type="date" name="start_date" class="form-control" required></div>
+                    <div class="mb-2"><label>End Date</label><input type="date" name="end_date" class="form-control" required></div>
+                    <div class="mb-2">
+                        <label>Assign Coordinator</label>
+                        <select name="coord_id" class="form-select">
+                            <option value="">-- None --</option>
+                            {% for c in coords %}
+                                {% if c.authorized and c.is_active %}<option value="{{ c.aid }}">{{ c.username }}</option>{% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="btn btn-dark w-100">Deploy</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7">
+        <div class="card bg-light mb-4">
+            <div class="card-header bg-secondary text-white">Users</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u.username }}</td>
+                            <td>{{ u.role_level }}</td>
+                            <td>
+                                {% if not u.is_active %}<span class="badge bg-danger">Banned</span>
+                                {% elif u.role_level == 'coordinator' and not u.authorized %}<span class="badge bg-warning">Pending</span>
+                                {% else %}<span class="badge bg-success">Active</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if u.role_level == 'coordinator' and not u.authorized and u.is_active %}
+                                <form method="POST" action="/director/auth_coord/{{ u.aid }}" class="d-inline"><button class="btn btn-sm btn-info">Authorize</button></form>
+                                {% endif %}
+                                {% if u.is_active %}
+                                <form method="POST" action="/director/ban_user/{{ u.aid }}" class="d-inline"><button class="btn btn-sm btn-danger">Ban</button></form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-header bg-info text-white">Journeys</div>
+            <div class="card-body">
+                <table class="table">
+                    <thead><tr><th>Title</th><th>Location</th><th>Start</th><th>End</th><th>Status</th><th>Coordinator</th></tr></thead>
+                    <tbody>
+                        {% for j in journeys %}
+                        <tr>
+                            <td>{{ j.title }}</td>
+                            <td>{{ j.location }}</td>
+                            <td>{{ j.start_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ j.end_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ j.status }}</td>
+                            <td>{{ j.coordinator.username if j.coordinator else 'Unassigned' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

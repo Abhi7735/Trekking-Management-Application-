@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block nav %}
+<li class="nav-item"><a class="nav-link active" href="/customer/dashboard">Customer Portal</a></li>
+{% endblock %}
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-8">
+        <h2>Available Journeys</h2>
+    </div>
+    <div class="col-md-4">
+        <form method="GET" action="/customer/dashboard" class="d-flex">
+            <input class="form-control me-2" type="search" name="q" placeholder="Search location..." value="{{ q }}">
+            <button class="btn btn-outline-dark" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-4">
+    {% for j in journeys %}
+    {% if j.jid not in my_jids and j.available_slots > 0 %}
+    <div class="col-md-4 mb-4">
+        <div class="card bg-light shadow">
+            <div class="card-body">
+                <h5 class="card-title text-dark">{{ j.title }}</h5>
+                <p class="mb-1"><strong>Location:</strong> {{ j.location }}</p>
+                <p class="mb-1"><strong>Difficulty:</strong> {{ j.difficulty }}</p>
+                <p class="mb-1"><strong>Dates:</strong> {{ j.start_date.strftime('%Y-%m-%d') }} to {{ j.end_date.strftime('%Y-%m-%d') }}</p>
+                <form method="POST" action="/customer/buy_ticket/{{ j.jid }}">
+                    <button class="btn btn-dark w-100 mt-3">Book</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2 class="text-success">My Tickets</h2>
+        <div class="row mt-3">
+            {% for t in my_tickets %}
+            <div class="col-md-3 mb-3">
+                <div class="card bg-light shadow border-success">
+                    <div class="card-body text-center">
+                        <h6 class="text-success">{{ t.journey.title }}</h6>
+                        <small>{{ t.journey.start_date.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

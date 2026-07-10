@@ -3,12 +3,12 @@
 <div class="row justify-content-center mt-5">
     <div class="col-md-5">
         <div class="card bg-light shadow">
-            <div class="card-header bg-dark text-white text-center">
-                <h4>System Login</h4>
+            <div class="card-header bg-secondary text-white text-center">
+                <h4>System Registration</h4>
             </div>
             <div class="card-body">
                 {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-                <form method="POST" action="/auth/login">
+                <form method="POST" action="/auth/register">
                     <div class="mb-3">
                         <label>Username</label>
                         <input type="text" name="username" class="form-control" required>
@@ -17,10 +17,17 @@
                         <label>Password</label>
                         <input type="password" name="password" class="form-control" required>
                     </div>
-                    <button type="submit" class="btn btn-dark w-100">Login</button>
+                    <div class="mb-3">
+                        <label>Role</label>
+                        <select name="role" class="form-select">
+                            <option value="customer">Customer</option>
+                            <option value="coordinator">Coordinator</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100">Register</button>
                 </form>
                 <div class="text-center mt-3">
-                    <a href="/auth/register">Create Account</a>
+                    <a href="/auth/login">Back to Login</a>
                 </div>
             </div>
         </div>

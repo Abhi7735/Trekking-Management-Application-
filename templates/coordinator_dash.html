@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block nav %}
+<li class="nav-item"><a class="nav-link active" href="/coordinator/dashboard">Coordinator Panel</a></li>
+{% endblock %}
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>My Managed Journeys</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    {% for j in journeys %}
+    <div class="col-md-4 mb-4">
+        <div class="card bg-light shadow">
+            <div class="card-body">
+                <h5 class="card-title text-info">{{ j.title }}</h5>
+                <p><strong>Dates:</strong> {{ j.start_date.strftime('%Y-%m-%d') }} to {{ j.end_date.strftime('%Y-%m-%d') }}</p>
+                <form method="POST" action="/coordinator/update_journey/{{ j.jid }}">
+                    <div class="mb-2">
+                        <label>Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Scheduled" {% if j.status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+                            <option value="Active" {% if j.status == 'Active' %}selected{% endif %}>Active</option>
+                            <option value="Completed" {% if j.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Slots (Max {{ j.total_slots }})</label>
+                        <input type="number" name="slots" value="{{ j.available_slots }}" max="{{ j.total_slots }}" min="0" class="form-control">
+                    </div>
+                    <button class="btn btn-info w-100 mt-2">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
