@@ -28,4 +28,3 @@ def buy_ticket(jid):
         db.session.commit()
     return redirect(url_for('customer.dashboard'))
 
-# cbdwucdhcbwdj
