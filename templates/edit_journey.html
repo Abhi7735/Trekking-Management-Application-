@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block nav %}
+<li class="nav-item"><a class="nav-link" href="/director/dashboard">Director Panel</a></li>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card bg-light shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">Edit Journey #{{ journey.jid }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/director/edit_journey/{{ journey.jid }}">
+                    <div class="mb-3">
+                        <label>Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ journey.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Location</label>
+                        <input type="text" name="location" class="form-control" value="{{ journey.location }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Difficulty</label>
+                        <select name="difficulty" class="form-select" required>
+                            <option value="Easy" {% if journey.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                            <option value="Moderate" {% if journey.difficulty == 'Moderate' %}selected{% endif %}>Moderate</option>
+                            <option value="Hard" {% if journey.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Total Slots</label>
+                        <input type="number" name="slots" class="form-control" value="{{ journey.total_slots }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Available Slots</label>
+                        <input type="number" name="available_slots" class="form-control" value="{{ journey.available_slots }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Duration (days)</label>
+                        <input type="number" name="duration" class="form-control" value="{{ journey.duration if journey.duration else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ journey.start_date.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>End Date</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ journey.end_date.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Scheduled" {% if journey.status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+                            <option value="Open" {% if journey.status == 'Open' %}selected{% endif %}>Open</option>
+                            <option value="Active" {% if journey.status == 'Active' %}selected{% endif %}>Active</option>
+                            <option value="Closed" {% if journey.status == 'Closed' %}selected{% endif %}>Closed</option>
+                            <option value="Completed" {% if journey.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Assign Coordinator</label>
+                        <select name="coord_id" class="form-select">
+                            <option value="">-- None --</option>
+                            {% for c in coords %}
+                                {% if c.authorized and c.is_active %}
+                                <option value="{{ c.aid }}" {% if journey.assigned_to == c.aid %}selected{% endif %}>{{ c.username }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-warning flex-fill">Save Changes</button>
+                        <a href="/director/dashboard" class="btn btn-secondary flex-fill">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

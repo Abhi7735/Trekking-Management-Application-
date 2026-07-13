@@ -4,13 +4,26 @@
 {% endblock %}
 {% block content %}
 <div class="row mt-4">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <h2>Available Journeys</h2>
     </div>
-    <div class="col-md-4">
-        <form method="GET" action="/customer/dashboard" class="d-flex">
-            <input class="form-control me-2" type="search" name="q" placeholder="Search location..." value="{{ q }}">
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="row mt-3">
+    <div class="col-md-12">
+        <form method="GET" action="/customer/dashboard" class="d-flex gap-2">
+            <input class="form-control" type="search" name="q" placeholder="Search by location..." value="{{ q }}">
+            <select name="difficulty" class="form-select" style="max-width: 200px;">
+                <option value="">All Difficulties</option>
+                <option value="Easy" {% if difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                <option value="Moderate" {% if difficulty == 'Moderate' %}selected{% endif %}>Moderate</option>
+                <option value="Hard" {% if difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+            </select>
             <button class="btn btn-outline-dark" type="submit">Search</button>
+            {% if q or difficulty %}
+            <a href="/customer/dashboard" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
         </form>
     </div>
 </div>
@@ -24,7 +37,10 @@
                 <h5 class="card-title text-dark">{{ j.title }}</h5>
                 <p class="mb-1"><strong>Location:</strong> {{ j.location }}</p>
                 <p class="mb-1"><strong>Difficulty:</strong> {{ j.difficulty }}</p>
+                {% if j.duration %}<p class="mb-1"><strong>Duration:</strong> {{ j.duration }} days</p>{% endif %}
                 <p class="mb-1"><strong>Dates:</strong> {{ j.start_date.strftime('%Y-%m-%d') }} to {{ j.end_date.strftime('%Y-%m-%d') }}</p>
+                <p class="mb-1"><strong>Available Slots:</strong> {{ j.available_slots }} / {{ j.total_slots }}</p>
+                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">{{ j.status }}</span></p>
                 <form method="POST" action="/customer/buy_ticket/{{ j.jid }}">
                     <button class="btn btn-dark w-100 mt-3">Book</button>
                 </form>
@@ -35,20 +51,38 @@
     {% endfor %}
 </div>
 
-<div class="row mt-5">
+<!-- My Bookings / Trekking History -->
+<div class="row mt-5 mb-4">
     <div class="col-md-12">
-        <h2 class="text-success">My Tickets</h2>
-        <div class="row mt-3">
-            {% for t in my_tickets %}
-            <div class="col-md-3 mb-3">
-                <div class="card bg-light shadow border-success">
-                    <div class="card-body text-center">
-                        <h6 class="text-success">{{ t.journey.title }}</h6>
-                        <small>{{ t.journey.start_date.strftime('%Y-%m-%d') }}</small>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+        <h2 class="text-success">My Bookings &amp; Trekking History</h2>
+        <div class="table-responsive mt-3">
+            <table class="table table-hover">
+                <thead>
+                    <tr><th>Journey</th><th>Location</th><th>Dates</th><th>Trek Status</th><th>Booking Status</th><th>Booked On</th></tr>
+                </thead>
+                <tbody>
+                    {% for t in my_tickets %}
+                    <tr>
+                        <td>{{ t.journey.title }}</td>
+                        <td>{{ t.journey.location }}</td>
+                        <td>{{ t.journey.start_date.strftime('%Y-%m-%d') }} to {{ t.journey.end_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if t.journey.status == 'Completed' %}<span class="badge bg-secondary">{{ t.journey.status }}</span>
+                            {% elif t.journey.status in ['Scheduled', 'Open'] %}<span class="badge bg-success">{{ t.journey.status }}</span>
+                            {% elif t.journey.status == 'Active' %}<span class="badge bg-primary">{{ t.journey.status }}</span>
+                            {% else %}<span class="badge bg-dark">{{ t.journey.status }}</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if t.status == 'Booked' %}<span class="badge bg-primary">{{ t.status }}</span>
+                            {% elif t.status == 'Completed' %}<span class="badge bg-success">{{ t.status }}</span>
+                            {% elif t.status == 'Cancelled' %}<span class="badge bg-danger">{{ t.status }}</span>
+                            {% else %}<span class="badge bg-secondary">{{ t.status }}</span>{% endif %}
+                        </td>
+                        <td>{{ t.booked_on.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

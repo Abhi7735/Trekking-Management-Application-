@@ -9,6 +9,55 @@
     </div>
 </div>
 
+<!-- Summary Stats Cards -->
+<div class="row mt-3">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white shadow">
+            <div class="card-body text-center">
+                <h5>Total Treks</h5>
+                <h2>{{ total_treks }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow">
+            <div class="card-body text-center">
+                <h5>Total Users</h5>
+                <h2>{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white shadow">
+            <div class="card-body text-center">
+                <h5>Total Staff</h5>
+                <h2>{{ total_staff }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark shadow">
+            <div class="card-body text-center">
+                <h5>Total Bookings</h5>
+                <h2>{{ total_bookings }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <form method="GET" action="/director/dashboard" class="d-flex">
+            <input class="form-control me-2" type="search" name="q" placeholder="Search treks, staff, or users by name or ID..." value="{{ search_q }}">
+            <button class="btn btn-outline-dark" type="submit">Search</button>
+            {% if search_q %}
+            <a href="/director/dashboard" class="btn btn-outline-secondary ms-2">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
 <div class="row mt-4">
     <div class="col-md-5">
         <div class="card bg-light">
@@ -17,8 +66,16 @@
                 <form method="POST" action="/director/add_journey">
                     <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Title" required></div>
                     <div class="mb-2"><input type="text" name="location" class="form-control" placeholder="Location" required></div>
-                    <div class="mb-2"><input type="text" name="difficulty" class="form-control" placeholder="Difficulty" required></div>
-                    <div class="mb-2"><input type="number" name="slots" class="form-control" placeholder="Slots" required></div>
+                    <div class="mb-2">
+                        <select name="difficulty" class="form-select" required>
+                            <option value="" disabled selected>Select Difficulty</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="mb-2"><input type="number" name="slots" class="form-control" placeholder="Total Slots" required></div>
+                    <div class="mb-2"><input type="number" name="duration" class="form-control" placeholder="Duration (days)"></div>
                     <div class="mb-2"><label>Start Date</label><input type="date" name="start_date" class="form-control" required></div>
                     <div class="mb-2"><label>End Date</label><input type="date" name="end_date" class="form-control" required></div>
                     <div class="mb-2">
@@ -38,13 +95,14 @@
     
     <div class="col-md-7">
         <div class="card bg-light mb-4">
-            <div class="card-header bg-secondary text-white">Users</div>
+            <div class="card-header bg-secondary text-white">Users &amp; Staff</div>
             <div class="card-body">
                 <table class="table table-hover">
-                    <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>
                         {% for u in users %}
                         <tr>
+                            <td>{{ u.aid }}</td>
                             <td>{{ u.username }}</td>
                             <td>{{ u.role_level }}</td>
                             <td>
@@ -59,6 +117,7 @@
                                 {% if u.is_active %}
                                 <form method="POST" action="/director/ban_user/{{ u.aid }}" class="d-inline"><button class="btn btn-sm btn-danger">Ban</button></form>
                                 {% endif %}
+                                
                             </td>
                         </tr>
                         {% endfor %}
@@ -69,22 +128,65 @@
     </div>
 </div>
 
+<!-- Journeys Table with Edit/Delete -->
 <div class="row mt-4">
     <div class="col-md-12">
         <div class="card bg-light">
             <div class="card-header bg-info text-white">Journeys</div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table">
-                    <thead><tr><th>Title</th><th>Location</th><th>Start</th><th>End</th><th>Status</th><th>Coordinator</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Title</th><th>Location</th><th>Difficulty</th><th>Duration</th><th>Slots</th><th>Start</th><th>End</th><th>Status</th><th>Coordinator</th><th>Actions</th></tr></thead>
                     <tbody>
                         {% for j in journeys %}
                         <tr>
+                            <td>{{ j.jid }}</td>
                             <td>{{ j.title }}</td>
                             <td>{{ j.location }}</td>
+                            <td>{{ j.difficulty }}</td>
+                            <td>{{ j.duration if j.duration else '-' }} days</td>
+                            <td>{{ j.available_slots }} / {{ j.total_slots }}</td>
                             <td>{{ j.start_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ j.end_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ j.status }}</td>
                             <td>{{ j.coordinator.username if j.coordinator else 'Unassigned' }}</td>
+                            <td>
+                                <a href="/director/edit_journey/{{ j.jid }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form method="POST" action="/director/delete_journey/{{ j.jid }}" class="d-inline">
+                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this journey?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Bookings Table -->
+<div class="row mt-4 mb-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-header bg-dark text-white">All Bookings</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead><tr><th>Booking ID</th><th>Customer</th><th>Journey</th><th>Booked On</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for t in all_tickets %}
+                        <tr>
+                            <td>{{ t.tid }}</td>
+                            <td>{{ t.customer.username }}</td>
+                            <td>{{ t.journey.title }}</td>
+                            <td>{{ t.booked_on.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if t.status == 'Booked' %}<span class="badge bg-primary">{{ t.status }}</span>
+                                {% elif t.status == 'Completed' %}<span class="badge bg-success">{{ t.status }}</span>
+                                {% elif t.status == 'Cancelled' %}<span class="badge bg-danger">{{ t.status }}</span>
+                                {% else %}<span class="badge bg-secondary">{{ t.status }}</span>{% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
