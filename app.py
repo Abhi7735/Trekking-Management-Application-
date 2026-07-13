@@ -1,31 +1,33 @@
 # import all required libraries
 import os
 from flask import Flask, redirect, url_for
-from models_file.models import db, Account
+from models.schemas import db, Account
 
 def init_app():# define a function to initialize the Flask application and configure the database
     app = Flask(__name__)# create a Flask application instance
+    
     base = os.path.abspath(os.path.dirname(__file__))# gets the absolutre path of the current's file directory.
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base, 'gama_v2.sqlite')}"
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base,'TMA.sqlite')}"
+    app.config['SECRET_KEY'] = 'gamma_cyber_dark_42'# sets asecret key for security which protects sessions and form data agnaist tampering.
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False# disable the modification tracking feature of SQLAlchemy to save system resources.
-    app.config['SECRET_KEY'] = 'gamma_cyber_dark_42' # sets asecret key for security which protects sessions and form data agnaist tampering.
 
     db.init_app(app)# initialize the SQLAlchemy instance with the Flask application.
-    
+
     from controllers.auth_ctrl import auth_routes
     from controllers.customer_ctrl import customer_routes
     from controllers.coordinator_ctrl import coordinator_routes
     from controllers.director_ctrl import director_routes
-#doubt for below code1:1.
-    app.register_blueprint(auth_routes)
-    app.register_blueprint(customer_routes,url_prefix='/customer')
-    app.register_blueprint(coordinator_routes,url_prefix='/coordinator')
-    app.register_blueprint(director_routes,url_prefix='/director')
-
+    
+    app.register_blueprint(auth_routes, url_prefix='/auth')
+    app.register_blueprint(customer_routes, url_prefix='/customer')
+    app.register_blueprint(coordinator_routes, url_prefix='/coordinator')
+    app.register_blueprint(director_routes, url_prefix='/director')
+    
     @app.route('/')
     def index():
         return redirect(url_for('auth.login'))# redirect the user to the login page when they access the root URL.
-    
+
+    return app
 
 if __name__ == '__main__':
     app = init_app()
