@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from models.schemas import db, Account
 
-auth_routes = Blueprint('auth', __name__)
+auth_routes = Blueprint('auth', __name__)# this blueprint is used for the authentication routes. it will handle all the requests related to login, registration and logout.
 
-@auth_routes.route('/login', methods=['GET', 'POST'])
+@auth_routes.route('/login', methods=['GET', 'POST'])# this route is used for the login page. 
 def login():
     if request.method == 'POST':
         u = request.form.get('username')
@@ -20,7 +20,7 @@ def login():
         return render_template('login.html', error='Invalid credentials.')
     return render_template('login.html')
 
-@auth_routes.route('/register', methods=['GET', 'POST'])
+@auth_routes.route('/register', methods=['GET', 'POST'])#this route tells user to register for an account. it will save the user details in the database and redirect to the login page
 def register():
     if request.method == 'POST':
         u = request.form.get('username')
@@ -44,7 +44,7 @@ def register():
             
     return render_template('register.html')
 
-@auth_routes.route('/logout')
+@auth_routes.route('/logout')# this route is used for logging out the user from the system. it would clear the session and redirect to the login page.
 def logout():
     session.clear()
     return redirect(url_for('auth.login'))

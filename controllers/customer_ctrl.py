@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request
 from models.schemas import db, Journey, Ticket
 
-customer_routes = Blueprint('customer', __name__)
+customer_routes = Blueprint('customer', __name__)# this blueprint is used for the customer's routes. it will handle all the requests related to the customer's dashboard and actions.
 
-@customer_routes.route('/dashboard')
+@customer_routes.route('/dashboard')# this route is used for the customer's dashboard. 
 def dashboard():
     if session.get('role') != 'customer': return redirect(url_for('auth.login'))
     q = request.args.get('q', '')
@@ -26,7 +26,7 @@ def dashboard():
     my_jids = [t.journey_id for t in my_tickets]
     return render_template('customer_dash.html', journeys=journeys, my_tickets=my_tickets, my_jids=my_jids, q=q, difficulty=difficulty)
 
-@customer_routes.route('/buy_ticket/<int:jid>', methods=['POST'])
+@customer_routes.route('/buy_ticket/<int:jid>', methods=['POST'])# this route is used for buying a ticket for a journey by the customer.
 def buy_ticket(jid):
     if session.get('role') != 'customer': return redirect(url_for('auth.login'))
     j = Journey.query.get(jid)

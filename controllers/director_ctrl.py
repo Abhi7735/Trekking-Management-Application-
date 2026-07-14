@@ -2,9 +2,9 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from models.schemas import db, Account, Journey, Ticket
 from datetime import datetime
 
-director_routes = Blueprint('director', __name__)
+director_routes = Blueprint('director', __name__)# this blueprint is used for the director's routes. it will handle all the requests related to the director's dashboard and actions.
 
-@director_routes.route('/dashboard')
+@director_routes.route('/dashboard')# this route is used for the director's dashboard. it will show all the journeys, users, coordinators and tickets in the system.
 def dashboard():
     if session.get('role') != 'director': return redirect(url_for('auth.login'))
     
@@ -33,7 +33,7 @@ def dashboard():
     coords = Account.query.filter_by(role_level='coordinator').all()
     all_tickets = Ticket.query.all()
     
-    # Summary stats (always total, not filtered)
+    #  its a summary stats (always total, not filtered)
     total_treks = Journey.query.count()
     total_users = Account.query.filter_by(role_level='customer').count()
     total_staff = Account.query.filter_by(role_level='coordinator').count()
@@ -44,7 +44,7 @@ def dashboard():
         total_treks=total_treks, total_users=total_users, total_staff=total_staff,
         total_bookings=total_bookings, search_q=search_q)
 
-@director_routes.route('/add_journey', methods=['POST'])
+@director_routes.route('/add_journey', methods=['POST'])# this route is used for adding a new journey by the director. it will save the journey details in the database.
 def add_journey():
     if session.get('role') != 'director': return redirect(url_for('auth.login'))
     d1 = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d')
@@ -65,7 +65,7 @@ def add_journey():
     db.session.commit()
     return redirect(url_for('director.dashboard'))
 
-@director_routes.route('/edit_journey/<int:jid>', methods=['GET', 'POST'])
+@director_routes.route('/edit_journey/<int:jid>', methods=['GET', 'POST'])# this route is used for editing the journey by the director. it will update the journey details in the database.
 def edit_journey(jid):
     if session.get('role') != 'director': return redirect(url_for('auth.login'))
     j = Journey.query.get_or_404(jid)
@@ -86,7 +86,7 @@ def edit_journey(jid):
     coords = Account.query.filter_by(role_level='coordinator').all()
     return render_template('edit_journey.html', journey=j, coords=coords)
 
-@director_routes.route('/delete_journey/<int:jid>', methods=['POST'])
+@director_routes.route('/delete_journey/<int:jid>', methods=['POST'])# this route is used for deleting the journey by the director. its also deletes all the tickets associated with that journey.
 def delete_journey(jid):
     if session.get('role') != 'director': return redirect(url_for('auth.login'))
     j = Journey.query.get_or_404(jid)
@@ -96,7 +96,7 @@ def delete_journey(jid):
     db.session.commit()
     return redirect(url_for('director.dashboard'))
 
-@director_routes.route('/auth_coord/<int:aid>', methods=['POST'])
+@director_routes.route('/auth_coord/<int:aid>', methods=['POST'])# this route is used for authorizing the coordinators by the director. 
 def auth_coord(aid):
     if session.get('role') != 'director': return redirect(url_for('auth.login'))
     acc = Account.query.get(aid)
@@ -105,7 +105,7 @@ def auth_coord(aid):
         db.session.commit()
     return redirect(url_for('director.dashboard'))
 
-@director_routes.route('/ban_user/<int:aid>', methods=['POST'])
+@director_routes.route('/ban_user/<int:aid>', methods=['POST'])# this route is uesd for banning the user from the system. (it will inactive them)
 def ban_user(aid):
     if session.get('role') != 'director': return redirect(url_for('auth.login'))
     acc = Account.query.get(aid)
@@ -114,3 +114,15 @@ def ban_user(aid):
         db.session.commit()
     return redirect(url_for('director.dashboard'))
 
+@director_routes.route('/delete_user/<int:aid>', methods=['POST'])# this route is uded for deleting the banned users
+def delete_user(aid):
+    if session.get('role') != 'director': return redirect(url_for('auth.login'))
+    acc = Account.query.get(aid)
+    if acc:
+        Ticket.query.filter_by(customer_id=aid).delete()  
+        db.session.delete(acc)
+        db.session.commit()
+    return redirect(url_for('director.dashboard'))
+
+
+        
