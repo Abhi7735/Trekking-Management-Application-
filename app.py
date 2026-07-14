@@ -3,15 +3,15 @@ import os
 from flask import Flask, redirect, url_for
 from models.schemas import db, Account
 
-def init_app():# define a function to initialize the Flask application and configure the database
-    app = Flask(__name__)# create a Flask application instance
+def init_app():#  it define a function to initialize the Flask application and configure the database
+    app = Flask(__name__)#  it create a Flask application instance
     
     base = os.path.abspath(os.path.dirname(__file__))# gets the absolutre path of the current's file directory.
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base,'TMA.sqlite')}"
-    app.config['SECRET_KEY'] = 'gamma_cyber_dark_42'# sets asecret key for security which protects sessions and form data agnaist tampering.
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False# disable the modification tracking feature of SQLAlchemy to save system resources.
+    app.config['SECRET_KEY'] = 'gamma_cyber_dark_42'#  it sets asecret key for security which protects sessions and form data agnaist tampering.
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False#  it disable the modification tracking feature of SQLAlchemy to save system resources.
 
-    db.init_app(app)# initialize the SQLAlchemy instance with the Flask application.
+    db.init_app(app)#  it initialize the SQLAlchemy instance with the Flask application.
 
     from controllers.auth_ctrl import auth_routes
     from controllers.customer_ctrl import customer_routes
@@ -25,7 +25,7 @@ def init_app():# define a function to initialize the Flask application and confi
     
     @app.route('/')
     def index():
-        return redirect(url_for('auth.login'))# redirect the user to the login page when they access the root URL.
+        return redirect(url_for('auth.login'))#  it redirect the user to the login page when they access the root URL.
 
     return app
 
