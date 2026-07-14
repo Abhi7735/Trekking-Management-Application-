@@ -107,4 +107,4 @@ This project is suitable for packaging into a compressed archive within the requ
 
 ## Conclusion
 
-This project demonstrates a complete lightweight web application for trekking management with role-based access, database integration, and a user-friendly dashboard experience.
+This project demonstrates a complete lightweight web application for trekking management with role-based access, database integration, and a user-friendly dashboard experience..
